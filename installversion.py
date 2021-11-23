@@ -14,8 +14,11 @@ def install(version):
     versionjson = getversionjson(version)
     allurls = getallurls(versionjson)
     downloadeverything(allurls)
-    picklibnames(version)
-    
+    addinstalledmark(version)
+    picklibnames(versionjson, version)
+
+def addinstalledmark(version):
+    pass
 
 #
 #
@@ -28,20 +31,23 @@ def getversionjson(version):
         downloadVersionDictionary = json.load(versionDict)
 
     # Find the corresponding JSON file for that version
-    try:
+    if downloadVersionDictionary(version):
         versionURL = downloadVersionDictionary.get(version)
         versionJSONData = urlopen(versionURL)
-    except:
+    else:
         # Prints an error if that version isn't included in the "version-json-downloads.json" file with a URL definition
-        print('That version could not be found, it is not included in the versions dictionary, it may be inluded in a future update.')
+        print('!\tThat version could not be found, it is not included in the versions dictionary, it may be inluded in a future update.')
         # Let's the user input their own JSON if they have downloaded one for the version they want to use
-        if (input('You may import a JSON file manually to continue. Would you like to do this?\n') == 'Yes'):
-            versionJSONData = input('You may drag a custom JSON into the window now to try it manually.\nThis file will need to be named "[version you initally tried to launch].json" for it to be accepted.\nThis is not officially supported and is not gauranteed to function properly.\nPlace JSON here:\n ')
+        if (input('*\tYou may import a JSON file manually to continue. Would you like to do this? (y/n):\t') == 'y'):
+            versionJSONData = input('*\tYou may drag a custom JSON into the window now to try it manually.\nThis file will need to be named "[version you initally tried to launch].json" for it to be accepted.\nThis is not officially supported and is not gauranteed to function properly.\nPlace JSON here:\n ')
+        else: 
+            print('*\tReturning...')
+            exit
     try:
         JSONlibrary = json.load(versionJSONData)
-        print ('\nLibrary index found, proceding with downlaod.\n')
+        print ('\n*\tLibrary index found, proceding with downlaod.\n')
     except:
-        print ('Library index not found, this JSON file is not usable.\n')
+        print ('!\tLibrary index not found, this JSON file is not usable.\n')
         exit
     return JSONlibrary
 
@@ -87,7 +93,7 @@ def downloadassets(url):
 def picklibnames(versionjson,installversion):
     libraryurls = getllibraryurls(versionjson)
     names = parselibrarydownloads(libraryurls)
-    with open('librarylist{}.dat'.format(installversion),"wb") as librarylist:
+    with open('librarylist_{}.dat'.format(installversion),"wb") as librarylist:
         pickle.dump(names, librarylist)
 
 def parselibrarydownloads(url):
