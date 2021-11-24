@@ -1,4 +1,4 @@
-testing/
+ignored/
 *.dat
 *_install
 __pycache__/
