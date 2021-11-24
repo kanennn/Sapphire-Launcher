@@ -1,3 +1,5 @@
 testing/
 *.dat
 *_install
+__pycache__/
+requests/
