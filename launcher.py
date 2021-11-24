@@ -6,32 +6,44 @@ import installversion
 import pickle
 import os
 
+launcherversion = '0.1.0'
+
+commands = ['quit','launch','install']
+
 def launch(version):
     pass
 
-for line in sys.stdin:
-    if 'quit' == line.rstrip:
-        print('closing')
+print('\n# MBasiC Launcher v{} - Use \"?\" for help.\n'.format(launcherversion))
+
+while True:
+    prompt= input('[] ')
+
+    if '' == prompt.strip():
+        print('! Empty command')
+        continue
+    
+    if commands[0] == prompt.strip():
+        print('* Closing...')
         break
-    if 'launch' == line.rsplit()[0]:
+
+    if commands[1] == prompt.rsplit()[0]:
         try:
-            version = line.rsplit()[1]
-            print(version)
-            if os.path.exists('installed-versions.dat'):
-                with open('installed-versions.dat', 'rb') as iV:
+            version = prompt.rsplit()[1]
+            if os.path.exists('installedversions.dat'):
+                with open('installedversions.dat', 'rb') as iV:
                     instversions = pickle.load(iV)
                 if version not in instversions:
-                    if input('* Version  %s is not installed, would you like to install it? (y/n)') == 'y':
+                    if input('* Version  %s is not installed, would you like to install it? (y/n): ') == 'y':
                         installversion.install(version)
                     else:
-                        print('returning...')
+                        print('*\tReturning...')
                 else:
                     launch(version)
             else:
-                if input('* No versions appear to be installed, would you like to install one? (y/n):\t') == 'y':
+                if input('* No versions appear to be installed, would you like to install this one? (y/n): ') == 'y':
                     installversion.install(version)
                 else:
-                    print('returning')
+                    print('* Returning...')
         except:
             print('! No version provided')
 

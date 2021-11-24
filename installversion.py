@@ -18,7 +18,17 @@ def install(version):
     picklibnames(versionjson, version)
 
 def addinstalledmark(version):
-    pass
+    if os.path.exists('installeversions.dat'):
+        with open('installedversions.dat', 'ab') as instversionsfile:
+            installedversions = pickle.load(instversionsfile)
+            installedversions.append(version)
+            pickle.dump(installedversions)
+    else:
+        installedversions = list(version)
+        with open('installeversions.dat', 'wb') as instversionsfile:
+            pickle.dump(installedversions)
+
+        
 
 #
 #
@@ -31,7 +41,7 @@ def getversionjson(version):
         downloadVersionDictionary = json.load(versionDict)
 
     # Find the corresponding JSON file for that version
-    if downloadVersionDictionary(version):
+    if version in downloadVersionDictionary:
         versionURL = downloadVersionDictionary.get(version)
         versionJSONData = urlopen(versionURL)
     else:
@@ -48,7 +58,7 @@ def getversionjson(version):
         print ('\n*\tLibrary index found, proceding with downlaod.\n')
     except:
         print ('!\tLibrary index not found, this JSON file is not usable.\n')
-        exit
+        return
     return JSONlibrary
 
 #
