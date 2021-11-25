@@ -3,3 +3,4 @@ ignored/
 *_install
 __pycache__/
 requests/
+todo.md

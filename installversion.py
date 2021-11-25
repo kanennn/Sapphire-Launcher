@@ -11,24 +11,28 @@ import pickle
 # Main install control function
 
 def install(version):
+    installdir = setupinstalldir(version)
     versionjson = getversionjson(version)
     allurls = getallurls(versionjson)
-    downloadeverything(allurls)
+    downloadeverything(allurls,installdir)
     addinstalledmark(version)
     picklibnames(versionjson, version)
 
 def addinstalledmark(version):
     if os.path.exists('installeversions.dat'):
-        with open('installedversions.dat', 'ab') as instversionsfile:
+        with open('installedversions.dat', 'rb+wb') as instversionsfile:
             installedversions = pickle.load(instversionsfile)
             installedversions.append(version)
-            pickle.dump(installedversions)
+            pickle.dump(installedversions, instversionsfile)
     else:
         installedversions = list(version)
         with open('installeversions.dat', 'wb') as instversionsfile:
             pickle.dump(installedversions)
 
-        
+def setupinstalldir(version):
+    installdir = '{}_vanilla_install'.format(version)
+    os.makedirs(installdir, exist_ok=True)
+    return installdir
 
 #
 #
@@ -75,26 +79,29 @@ def getallurls(versionjson):
 #
 # Write all the files
     
-def downloadeverything(urls):
-    startdonwloadassets(urls[0])
-    downloadlibraries(urls[1])
+def downloadeverything(urls,installdir):
+    startdonwloadassets(urls[0],installdir)
+    downloadlibraries(urls[1],installdir)
 
 #
 #
 #   Starts the pool to donwload the assets
 
-def startdonwloadassets(asseturls):
+def startdonwloadassets(asseturls,installdir):
+    combineddata = list()
+    for url in asseturls:
+        combineddata.append([url, installdir])
     donwnloadpool = multiprocessing.Pool(5)
-    donwnloadpool.map(downloadassets, asseturls)
+    donwnloadpool.map(downloadassets, combineddata)
 
 #
 #
 #           Runs in a pool to get download and write all the asset urls, which is activated by startdownloadassets
 
-def downloadassets(url):
-    os.makedirs(os.path.dirname(url[1]), exist_ok=True)
-    with open(url[1], "wb") as directory:
-        directory.write(requests.get(url[0]).content)
+def downloadassets(combineddata):
+    os.makedirs('{}/{}'.format(combineddata[1],os.path.dirname(combineddata[0][1])), exist_ok=True)
+    with open('{}/{}'.format(combineddata[1],combineddata[0][1]), "wb") as directory:
+        directory.write(requests.get(combineddata[0][0]).content)
 
 #
 #
@@ -112,11 +119,11 @@ def parselibrarydownloads(url):
         names.append(url[i[0]].rpartition('/')[2]) 
     return names
 
-def downloadlibraries(url):
-    os.makedirs('libraries',exist_ok=True)
+def downloadlibraries(url,installdir):
+    os.makedirs('{}/libraries'.format(installdir),exist_ok=True)
     for i in enumerate(url):
         writtenfile = url[i[0]].rpartition('/')[2]
-        with open('libraries/{}'.format(writtenfile), "wb") as directory:
+        with open('{}/libraries/{}'.format(installdir,writtenfile), "wb") as directory:
             directory.write(requests.get(i[1]).content)
 #
 #
