@@ -4,3 +4,4 @@ ignored/
 __pycache__/
 requests/
 todo.md
+.DS_Store
