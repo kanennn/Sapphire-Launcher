@@ -6,13 +6,25 @@ from urllib.request import urlopen
 import requests
 import pickle
 
+# Due to time constraints in the making of this project, many pieces of this code do not have any comments and may not be organized well
+# This will hopefully be improved in the future
+
 #
 #
 # Main install control function
 
 def install(version):
+
+    result = getversionjson(version)
+
+    if result != 'failed':
+        versionjson = result
+    else:
+        return 'failed'
+    
+
+
     installdir = setupinstalldir(version)
-    versionjson = getversionjson(version)
     allurls = getallurls(versionjson)
     downloadeverything(allurls,installdir)
     addinstalledmark(version)
@@ -56,13 +68,13 @@ def getversionjson(version):
             versionJSONData = input('*\tYou may drag a custom JSON into the window now to try it manually.\nThis file will need to be named "[version you initally tried to launch].json" for it to be accepted.\nThis is not officially supported and is not gauranteed to function properly.\nPlace JSON here:\n ')
         else: 
             print('*\tReturning...')
-            exit
+            return 'failed'
     try:
         JSONlibrary = json.load(versionJSONData)
         print ('\n*\tLibrary index found, proceding with downlaod.\n')
     except:
         print ('!\tLibrary index not found, this JSON file is not usable.\n')
-        return
+        return 'failed'
     return JSONlibrary
 
 #

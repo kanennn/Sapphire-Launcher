@@ -27,7 +27,7 @@ while True:
         break
 
     if commands[1] == prompt.rsplit()[0]:
-        try:
+        if 1 < len(prompt.rsplit()): 
             version = prompt.rsplit()[1]
             if os.path.exists('installedversions.dat'):
                 with open('installedversions.dat', 'rb') as iV:
@@ -37,6 +37,7 @@ while True:
                         installversion.install(version)
                     else:
                         print('*\tReturning...')
+                        continue
                 else:
                     launch(version)
             else:
@@ -44,7 +45,12 @@ while True:
                     installversion.install(version)
                 else:
                     print('* Returning...')
-        except:
+        else:
             print('! No version provided')
+        
+        continue
+    
+    if prompt.split() not in commands:
+        print('! Not a command')
 
 
