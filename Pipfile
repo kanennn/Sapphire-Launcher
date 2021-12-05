@@ -5,6 +5,9 @@ name = "pypi"
 
 [packages]
 selenium = "*"
+requests = "*"
+chardet = "*"
+urllib3 = "*"
 
 [dev-packages]
 
