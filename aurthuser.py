@@ -2,6 +2,7 @@ import requests
 import re
 import urllib.parse
 import json
+import selenium
 
 def microsoftauth():
     email = 'emailTest'
@@ -27,14 +28,12 @@ def postMicrosoft(sFFTagAndUrlPost,email,password):
     #print(encodedSFFTag)
     postdata = "login={}&loginfmt={}&passwd={}&PPFT={}".format(encodedEmail,encodedEmail,encodedPassword,encodedSFFTag)
     #print(postdata)
-    #postrequest = requests.post(url=urlPost, data=postdata, headers=dict({"Content-Type":"application/x-www-form-urlencoded"}))
-    postrequest = requests.post("https://login.live.com/oauth20_authorize.srf?client_id=000000004C12AE6F&redirect_uri=https://login.live.com/oauth20_desktop.srf&scope=service::user.auth.xboxlive.com::MBI_SSL&display=touch&response_type=token&locale=en", )
-    #print(urlPost)
-    #print(postrequest.url)
+    postrequest = requests.post(url=urlPost, data=postdata, headers={"Content-Type":"application/x-www-form-urlencoded"})
+    rdr1 = re.search('(?<=URL=)(.+?)(?=\")', postrequest.text)
+    print(rdr1.group(1))
     print(postrequest.status_code)
     print(postrequest.is_permanent_redirect)
     print(postrequest.is_redirect)
-    print(postrequest.history)
     return postrequest
 def checkMicrosoftRecieved(postrequest):
     pass
