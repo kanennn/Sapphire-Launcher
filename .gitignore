@@ -5,3 +5,4 @@ __pycache__/
 requests/
 todo.md
 .DS_Store
+.env

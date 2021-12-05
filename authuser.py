@@ -1,7 +1,6 @@
 import requests
 import re
-import json
-import selenium
+import PyQt6
 
 def microsoftauth():
     email = 'emailTest'
