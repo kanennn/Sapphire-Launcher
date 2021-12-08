@@ -16,30 +16,27 @@ import pickle
 def install(version):
 
     result = getversionjson(version)
-
     if result != 'failed':
         versionjson = result
     else:
         return 'failed'
-    
-
-
     installdir = setupinstalldir(version)
     allurls = getallurls(versionjson)
     downloadeverything(allurls,installdir)
     addinstalledmark(version)
-    picklibnames(versionjson, version)
+    writeinstalldata(versionjson, version)
+
 
 def addinstalledmark(version):
-    if os.path.exists('installeversions.dat'):
-        with open('installedversions.dat', 'rb+wb') as instversionsfile:
+    if os.path.exists('installedversions.dat'):
+        with open('installedversions.dat', 'r+b') as instversionsfile:
             installedversions = pickle.load(instversionsfile)
             installedversions.append(version)
             pickle.dump(installedversions, instversionsfile)
     else:
         installedversions = list(version)
-        with open('installeversions.dat', 'wb') as instversionsfile:
-            pickle.dump(installedversions)
+        with open('installedversions.dat', 'wb') as instversionsfile:
+            pickle.dump(installedversions, instversionsfile)
 
 def setupinstalldir(version):
     installdir = '{}_vanilla_install'.format(version)
@@ -119,9 +116,12 @@ def downloadassets(combineddata):
 #
 #   Download all the libraries
 
-def picklibnames(versionjson,installversion):
+def writeinstalldata(versionjson,installversion):
     libraryurls = getllibraryurls(versionjson)
     names = parselibrarydownloads(libraryurls)
+    # installdata = dict()
+    # installdata[]
+
     with open('librarylist_{}.dat'.format(installversion),"wb") as librarylist:
         pickle.dump(names, librarylist)
 

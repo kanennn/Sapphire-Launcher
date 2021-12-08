@@ -4,11 +4,10 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-selenium = "*"
 requests = "*"
 chardet = "*"
 urllib3 = "*"
-pyqt6 = "*"
+pyqt6-webengine = "*"
 
 [dev-packages]
 
