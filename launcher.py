@@ -36,7 +36,7 @@ while True:
                     if input('* Version  %s is not installed, would you like to install it? (y/n): ') == 'y':
                         installversion.install(version)
                     else:
-                        print('*\tReturning...')
+                        print('* Returning...')
                         continue
                 else:
                     launch(version)

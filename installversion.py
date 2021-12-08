@@ -117,13 +117,25 @@ def downloadassets(combineddata):
 #   Download all the libraries
 
 def writeinstalldata(versionjson,installversion):
+    # Getting libraryurls for parsing in next function call (parselibrarydownloads)
     libraryurls = getllibraryurls(versionjson)
-    names = parselibrarydownloads(libraryurls)
-    # installdata = dict()
-    # installdata[]
 
-    with open('librarylist_{}.dat'.format(installversion),"wb") as librarylist:
-        pickle.dump(names, librarylist)
+    # Getting arguments to pickle for later use when launching..
+    names = parselibrarydownloads(libraryurls)
+    mainclass = versionjson["mainClass"]
+    versiontype = versionjson["type"]
+    assetindex = versionjson["assets"]
+    
+    # Adding these arguments to a dictionary 
+    installdata = dict()
+    installdata["mainclass"] = mainclass
+    installdata["versiontype"] = versiontype
+    installdata["assetindex"] = assetindex
+    installdata["libraries"] = names
+
+    # Writing this dictionary to a pickle .dat file for later use when launching...
+    with open('{}_vanilla_install/installdata_{}.dat'.format(installversion, installversion),"wb") as installdatafile:
+        pickle.dump(installdata, installdatafile)
 
 def parselibrarydownloads(url):
     names = list()
@@ -146,14 +158,11 @@ def getllibraryurls(versionjson):
 
     jsonurls = list()
     jsondownloads = versionjson['libraries']
-    for url in jsondownloads:
-        temp = (url['downloads']['artifact']['url'])
-        jsonurls.append(temp)
-    jsonurls.append(versionjson['downloads']['client']['url'])
+    # Makes sure there are not duplicates and sorts out the lwjgl libraries
+    [jsonurls.append(u['downloads']['artifact']['url']) for u in jsondownloads if u['downloads']['artifact']['url'] not in jsonurls and "lwjgl" not in u['downloads']['artifact']['url']]
 
-    # filters out all lwjgl urls (since they are not needed)
-    librarydownlaods = [i for i in jsonurls if "lwjgl" not in i]    
-    return librarydownlaods
+    jsonurls.append(versionjson['downloads']['client']['url'])
+    return jsonurls
 
 #
 #
