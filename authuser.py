@@ -33,16 +33,19 @@ class authenticate :
     def __authmojang__(self):
         postdata = '{"agent" : "Minecraft", "username" : "%s", "password": "%s", "requestUser" : "false"}'%(self.email, self.password)
         authrequest = requests.post(url='https://authserver.mojang.com/authenticate',data=postdata,headers={"Content-Type" : "application/json"})
+        
         returneddata = eval(authrequest.content)
-        self.authtoken, self.username, self.uuid = returneddata['accessToken'], returneddata['selectedProfile']['name'], returneddata['selectedProfile']['id']
+        if authrequest.status_code == 200:
+            self.authtoken, self.username, self.uuid = returneddata['accessToken'], returneddata['selectedProfile']['name'], returneddata['selectedProfile']['id']
+            self.status = 'OK'
+        else:
+            self.error = returneddata["errorMessage"]
+            self.status = 'Failed'
         
         
 if __name__ == "__main__":
     authdata = authenticate(input('Username: '), input('Password: '), input('Account Type: '))
     print(authdata.authtoken)
-
-
-
 
 
 

@@ -7,3 +7,4 @@ todo.md
 .DS_Store
 .env
 auth.txt
+*.jdk

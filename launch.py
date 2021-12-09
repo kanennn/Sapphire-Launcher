@@ -5,10 +5,17 @@ import pickle
 
 def launch(version):
     # Main launch handler
-    authtoken, username, uuid = authenticateuser()
+    authdata = authenticateuser()
+
+    if authdata.status == 'OK':
+        authtoken, username, uuid = authdata.authtoken, authdata.username, authdata.uuid
+    elif authdata.status == 'Failed':
+         print('! %s'% authdata.error)
+         return 'Failed'
 
     input = assembleinput(version, authtoken, username, uuid)
-    print (input)
+    
+    subprocess.Popen(['zulu-17.jdk/Contents/Home/bin/java','-Dorg.lwjgl.librarypath=','-jar'])
 
 def authenticateuser():
 
@@ -28,8 +35,8 @@ def authenticateuser():
                 email, password = manualcredentials()
 
     authrequest = authenticate(email=email, password=password, accounttype='mojang') # The static 'mojang' account type passed will need to be changed to be dynamic when microsoft account support is added
-
-    return authrequest.authtoken, authrequest.username, authrequest.uuid
+    
+    return authrequest
 
 def assembleinput(version, authtoken, username, uuid):
 
@@ -70,7 +77,10 @@ def assembleinput(version, authtoken, username, uuid):
         launchinputlist.append('cp {}/{}_vanilla_install/libraries/{}'.format(os.getcwd(),version,lib))
     
     launchinputlist.append('ext {}/{}_vanilla_install/libraries/{}'.format(os.getcwd(),version,[i for i in installlaunchdata["libraries"] if 'java-objc-bridge' in i][0]))
-
+    launchinputlist.append('NO_NATIVES')
+    launchinputlist.append('launch')
+    
     return launchinputlist
+
 if __name__ == "__main__":
     launch('1.17.1')
