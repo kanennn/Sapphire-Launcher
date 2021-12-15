@@ -13,9 +13,9 @@ def launch(version):
          print('! %s'% authdata.error)
          return 'Failed'
 
-    input = assembleinput(version, authtoken, username, uuid)
-    
-    subprocess.Popen(['zulu-17.jdk/Contents/Home/bin/java','-Dorg.lwjgl.librarypath=','-jar'])
+    launch = constructcommand(version, authtoken, username, uuid)
+
+    launchcommand = subprocess.Popen(launch, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
 def authenticateuser():
 
@@ -38,49 +38,43 @@ def authenticateuser():
     
     return authrequest
 
-def assembleinput(version, authtoken, username, uuid):
+def constructcommand(version, authtoken, username, uuid):
 
-    if os.path.exists('{}_vanilla_install/installdata_{}.dat'.format(version,version)):
-        with open('{}_vanilla_install/installdata_{}.dat'.format(version,version), 'rb') as installdata:
-            installlaunchdata = pickle.load(installdata)
+    with open('{}_vanilla_install/installdata_{}.dat'.format(version,version), 'rb') as installdata:
+        installlaunchdata = pickle.load(installdata)
 
     launchinputlist = [
-        'mainClass {}'.format(installlaunchdata["mainclass"]),
-        'param --username',
-        'param {}'.format(username),
-        'param --version',
-        'param MultiMC5',
-        'param --gameDir',
-        'param {}'.format(os.getcwd() + '/minecraft'),
-        'param --assetDir',
-        'param {}'.format(os.getcwd() + '/{}_vanilla_install/assets'.format(version)),
-        'param --assetsDir',
-        'param {}'.format(os.getcwd() + '/assets'),
-        'param --assetIndex',
-        'param {}'.format(installlaunchdata["assetindex"]),
-        'param --uuid',
-        'param {}'.format(uuid),
-        'param --accessToken',
-        'param {}'.format(authtoken),
-        'param --userType',
-        'param mojang', # Will change to be dynamic in the future
-        'param --versiontype',
-        'param {}'.format(installlaunchdata["versiontype"]),
-        'windowTitle MultiMC: Working',
-        'windowParams 854x480',
-        'traits XR:Initial',
-        'traits FirstThreadOnMacOS',
-        'launcher onesix'
+        installlaunchdata["mainclass"],
+        '--username',
+        username,
+        '--version',
+        version,
+        '--gameDir',
+        os.getcwd() + '/minecraft',
+        '--assetsDir',
+        os.getcwd() + '/{}_vanilla_install/assets'.format(version),
+        '--assetIndex',
+        installlaunchdata["assetindex"],
+        '--uuid',
+        uuid,
+        '--accessToken',
+        authtoken,
+        'sessionId token:' + authtoken,
+        '--userType',
+        'mojang', # Will change to be dynamic in the future
+        '--versiontype',
+        installlaunchdata["versiontype"],
     ]
 
-    for lib in [i for i in installlaunchdata["libraries"] if 'java-objc-bridge' not in i]:
-        launchinputlist.append('cp {}/{}_vanilla_install/libraries/{}'.format(os.getcwd(),version,lib))
+    command = ['zulu-17.jdk/Contents/Home/bin/java','-Dorg.lwjgl.librarypath=lwjglnatives','-Dlog4j2.formatMsgNoLookups=true','-XstartOnFirstThread','-Xms409m','-Xmx2048m','-Duser.language=en','-cp']
+
+    libpathlist = list()
+    for lib in installlaunchdata["libraries"]:
+        libpathlist.append(os.getcwd() + '/{}_vanilla_install/libraries/{}'.format(version,lib))
     
-    launchinputlist.append('ext {}/{}_vanilla_install/libraries/{}'.format(os.getcwd(),version,[i for i in installlaunchdata["libraries"] if 'java-objc-bridge' in i][0]))
-    launchinputlist.append('NO_NATIVES')
-    launchinputlist.append('launch')
-    
-    return launchinputlist
+    command.append(":".join(libpathlist) + ':/Users/kanenstephens/Documents/Fabric-1.17.1 ARM MC/libraries/lwjglfat.jar')
+
+    return command + launchinputlist
 
 if __name__ == "__main__":
-    launch('1.17.1')
+    launch(input('Version : '))

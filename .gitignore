@@ -8,3 +8,12 @@ todo.md
 .env
 auth.txt
 *.jdk
+minecraft
+lwjglnatives
+lwjgl old
+lwjgl
+logs
+*.log
+options.txt
+usercache.json
+saves
