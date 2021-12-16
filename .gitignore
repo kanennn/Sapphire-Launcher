@@ -7,13 +7,9 @@ todo.md
 .DS_Store
 .env
 auth.txt
-*.jdk
 minecraft
-lwjglnatives
-lwjgl old
-lwjgl
 logs
 *.log
-options.txt
-usercache.json
-saves
+#options.txt
+#usercache.json
+#saves

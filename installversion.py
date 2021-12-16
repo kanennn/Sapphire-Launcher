@@ -22,6 +22,7 @@ def install(version):
         return 'failed'
     installdir = setupinstalldir(version)
     allurls = getallurls(versionjson)
+    writeassetindex(allurls[2], version, versionjson)
     downloadeverything(allurls,installdir)
     addinstalledmark(version)
     writeinstalldata(versionjson, version)
@@ -42,6 +43,13 @@ def setupinstalldir(version):
     installdir = '{}_vanilla_install'.format(version)
     os.makedirs(installdir, exist_ok=True)
     return installdir
+
+def writeassetindex(assetindexurl, version, versionjson):
+    assetversion = versionjson["assets"]
+    os.makedirs('{}_vanilla_install/assets/indexes'.format(version), exist_ok=True)
+    with open('{}_vanilla_install/assets/indexes/{}.json'.format(version, assetversion), 'w') as assetindexfile:
+        data = urlopen(assetindexurl)
+        assetindexurl.write(data)
 
 #
 #
@@ -82,7 +90,9 @@ def getallurls(versionjson):
     libraryurls = getllibraryurls(versionjson)
     assetindex = getassetindex(versionjson)
     asseturlsanddirectories = getasseturls(assetindex)
-    return asseturlsanddirectories, libraryurls
+    return asseturlsanddirectories, libraryurls, assetindex
+
+
 
 #
 #
@@ -159,7 +169,7 @@ def getllibraryurls(versionjson):
     jsonurls = list()
     jsondownloads = versionjson['libraries']
     # Makes sure there are not duplicates and sorts out the lwjgl libraries
-    [jsonurls.append(u['downloads']['artifact']['url']) for u in jsondownloads if u['downloads']['artifact']['url'] not in jsonurls and "lwjgl" not in u['downloads']['artifact']['url']]
+    [jsonurls.append(u['downloads']['artifact']['url']) for u in jsondownloads if u['downloads']['artifact']['url'] not in jsonurls and "lwjgl" not in u['downloads']['artifact']['url'] and 'log4j' not in u['downloads']['artifact']['url']]
 
     jsonurls.append(versionjson['downloads']['client']['url'])
     return jsonurls

@@ -1,5 +1,7 @@
 import os
+from re import sub
 import subprocess
+from sys import stdout
 from authuser import *
 import pickle
 
@@ -16,6 +18,11 @@ def launch(version):
     launch = constructcommand(version, authtoken, username, uuid)
 
     launchcommand = subprocess.Popen(launch, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    stdout, stderr = launchcommand.communicate()
+    if launchcommand.returncode != 0:
+        print('Launch failed with exit code %s' % launchcommand.returncode)
+        print(stderr)
+        print(stdout)
 
 def authenticateuser():
 
@@ -66,13 +73,17 @@ def constructcommand(version, authtoken, username, uuid):
         installlaunchdata["versiontype"],
     ]
 
-    command = ['zulu-17.jdk/Contents/Home/bin/java','-Dorg.lwjgl.librarypath=lwjglnatives','-Dlog4j2.formatMsgNoLookups=true','-XstartOnFirstThread','-Xms409m','-Xmx2048m','-Duser.language=en','-cp']
+    command = ['zulu-17.jdk/Contents/Home/bin/java','-Dlog4j2.formatMsgNoLookups=true','-XstartOnFirstThread','-Xms409m','-Xmx2048m','-Duser.language=en','-cp']
 
     libpathlist = list()
     for lib in installlaunchdata["libraries"]:
         libpathlist.append(os.getcwd() + '/{}_vanilla_install/libraries/{}'.format(version,lib))
-    
-    command.append(":".join(libpathlist) + ':/Users/kanenstephens/Documents/Fabric-1.17.1 ARM MC/libraries/lwjglfat.jar')
+    for l in [os.getcwd() + '/lwjgl/' + i for i in os.listdir(os.getcwd() + '/lwjgl/') if i.endswith('.jar')]:
+        libpathlist.append(l)
+    libpathlist.append(os.getcwd() + '/apache-log4j-2.16.0-select/log4j-api-2.16.0.jar')
+    libpathlist.append(os.getcwd() + '/apache-log4j-2.16.0-select/log4j-core-2.16.0.jar')
+
+    command.append(":".join(libpathlist))
 
     return command + launchinputlist
 
