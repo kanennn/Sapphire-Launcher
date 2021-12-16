@@ -13,3 +13,4 @@ logs
 #options.txt
 #usercache.json
 #saves
+*.jdk
