@@ -73,7 +73,7 @@ def constructcommand(version, authtoken, username, uuid):
         installlaunchdata["versiontype"],
     ]
 
-    command = ['zulu-17.jdk/Contents/Home/bin/java','-Dlog4j2.formatMsgNoLookups=true','-XstartOnFirstThread','-Xms409m','-Xmx2048m','-Duser.language=en','-cp']
+    command = ['zulu-17.jre/Contents/Home/bin/java','-Dlog4j2.formatMsgNoLookups=true','-XstartOnFirstThread','-Xms409m','-Xmx2048m','-Duser.language=en','-cp']
 
     libpathlist = list()
     for lib in installlaunchdata["libraries"]:
