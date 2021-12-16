@@ -35,9 +35,8 @@ def addinstalledmark(version):
             installedversions.append(version)
             pickle.dump(installedversions, instversionsfile)
     else:
-        installedversions = list(version)
         with open('installedversions.dat', 'wb') as instversionsfile:
-            pickle.dump(installedversions, instversionsfile)
+            pickle.dump([version], instversionsfile)
 
 def setupinstalldir(version):
     installdir = '{}_vanilla_install'.format(version)
@@ -48,8 +47,8 @@ def writeassetindex(assetindexurl, version, versionjson):
     assetversion = versionjson["assets"]
     os.makedirs('{}_vanilla_install/assets/indexes'.format(version), exist_ok=True)
     with open('{}_vanilla_install/assets/indexes/{}.json'.format(version, assetversion), 'w') as assetindexfile:
-        data = urlopen(assetindexurl)
-        assetindexurl.write(data)
+        data = requests.get(assetindexurl)
+        assetindexfile.write(data.text)
 
 #
 #

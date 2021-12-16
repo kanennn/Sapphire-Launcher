@@ -7,6 +7,13 @@ import launch
 import pickle
 import os
 
+def ifwhatversions():
+    if os.path.exists('installedversions.dat'):
+        with open('installedversions.dat','rb') as iV:
+            instversions = pickle.load(iV)
+            return instversions
+    else: return 'None'
+
 if __name__ == "__main__":
     launcherversion = '0.1.0'
 
@@ -20,35 +27,48 @@ if __name__ == "__main__":
         if '' == prompt.strip():
             print('! Empty command')
             continue
+
+        elif prompt.rsplit()[0] not in commands:
+            print('! Not a command')
         
-        if commands[0] == prompt.strip():
+        elif commands[0] == prompt.strip():
             print('* Closing...')
             break
 
-        if commands[1] == prompt.rsplit()[0]:
+        elif commands[1] == prompt.rsplit()[0]:
             if 1 < len(prompt.rsplit()): 
                 version = prompt.rsplit()[1]
-                if os.path.exists('installedversions.dat'):
-                    with open('installedversions.dat', 'rb') as iV:
-                        instversions = pickle.load(iV)
-                    if version not in instversions:
-                        if input('* Version %s is not installed, would you like to install it? (y/n): ' % version) == 'y':
-                            installversion.install(version)
-                        else:
-                            continue
-                    else:
-                        launch(version)
-                else:
+                checkversions = ifwhatversions()
+                if checkversions == 'None':
                     if input('* No versions appear to be installed, would you like to install this one? (y/n): ') == 'y':
                         installversion.install(version)
                     else:
                         print('* Returning...')
+                elif version not in checkversions:
+                        if input('* Version %s is not installed, would you like to install it? (y/n): ' % version) == 'y':
+                            installversion.install(version)
+                else:
+                    launch.launch(version)
+
             else:
                 print('! No version provided')
             
             continue
         
-        if prompt.split() not in commands:
-            print('! Not a command')
+        elif commands[2] == prompt.rsplit()[0]:
+            if 1 < len(prompt.rsplit()):
+                version = prompt.rsplit()[1]
+                checkversions = ifwhatversions()
+                if checkversions == 'None' or version not in checkversions:
+                    installversion.install(version)
+                else:
+                    launch.launch(version)
+                
+
+    
+    
+
+
+        
 
 
