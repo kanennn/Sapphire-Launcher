@@ -8,6 +8,7 @@ requests = "*"
 chardet = "*"
 urllib3 = "*"
 pyqt6-webengine = "*"
+pyinstaller = "*"
 
 [dev-packages]
 
