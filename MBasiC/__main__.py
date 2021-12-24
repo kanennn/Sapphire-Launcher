@@ -1,11 +1,23 @@
-import sys
-import json
-from urllib.request import urlopen
-import requests
-import installversion
-import launch
-import pickle
 import os
+import pickle
+
+from MBasiC.installversion import *
+from MBasiC.launch import *
+from MBasiC.downloadstaticlibs import *
+
+def main():
+    prelaunchchecks()
+    launcherversion, commands = info()
+    interactiveloop(commands, launcherversion)
+
+def prelaunchchecks():
+    if os.path.exists('data/installed.dat'):
+        pass
+
+def info():
+    launcherversion = '0.2.0.b1' 
+    commands = ['quit','launch','install','help']
+    return launcherversion, commands
 
 def ifwhatversions():
     if os.path.exists('installedversions.dat'):
@@ -14,10 +26,7 @@ def ifwhatversions():
             return instversions
     else: return 'None'
 
-if __name__ == "__main__":
-    launcherversion = '0.1.0'
-
-    commands = ['quit','launch','install']
+def interactiveloop(commands,launcherversion):
 
     print('\n# MBasiC Launcher v{} - Use \"?\" for help.\n'.format(launcherversion))
 
@@ -41,14 +50,14 @@ if __name__ == "__main__":
                 checkversions = ifwhatversions()
                 if checkversions == 'None':
                     if input('* No versions appear to be installed, would you like to install this one? (y/n): ') == 'y':
-                        installversion.install(version)
+                        install(version)
                     else:
                         print('* Returning...')
                 elif version not in checkversions:
                         if input('* Version %s is not installed, would you like to install it? (y/n): ' % version) == 'y':
-                            installversion.install(version)
+                            install(version)
                 else:
-                    launch.launch(version)
+                    launch(version)
 
             else:
                 print('! No version provided')
@@ -60,9 +69,9 @@ if __name__ == "__main__":
                 version = prompt.rsplit()[1]
                 checkversions = ifwhatversions()
                 if checkversions == 'None' or version not in checkversions:
-                    installversion.install(version)
+                    install(version)
                 else:
-                    launch.launch(version)
+                    launch(version)
                 
 
     

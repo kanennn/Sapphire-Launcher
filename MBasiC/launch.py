@@ -1,9 +1,8 @@
-import os
-from re import sub
 import subprocess
-from sys import stdout
-from authuser import *
+import os
 import pickle
+
+from MBasiC.authuser import authenticate 
 
 def launch(version):
     # Main launch handler

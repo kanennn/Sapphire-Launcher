@@ -1,13 +1,12 @@
-import os
-import multiprocessing
-import json
-import urllib
-from urllib.request import urlopen
-import requests
-import pickle
-
 # Due to time constraints in the making of this project, many pieces of this code do not have any comments and may not be organized well
 # This will hopefully be improved in the future
+
+import pickle
+import requests
+import os
+import json
+import multiprocessing
+from urllib.request import urlopen
 
 #
 #
