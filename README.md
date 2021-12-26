@@ -7,15 +7,15 @@ This is a python based *command line launcher* to launch most any minecraft vers
 ### Use
 Simply download one of the offical releases, and run the app to launch the command line interface.
 #### Commands
-##### install
+- ##### install
 Use `install [version]` to install any supported versions. Currently only 1.17.1, 1.15, and 1.18.1 are supported (more coming VERY soon).
-##### launch
+- ##### launch
 Use `launch [version]` to launch any installed versions. If specified versions is not installed, then a prompt to install it will be presented.
-##### quit
+- ##### quit
 Use `quit` to simply close the program.
-##### help *or* ?
-Use `help` or `?` to provide a list of the commands, and 
-## Credits
+- ##### help *or* ?
+Use `help` or `?` to provide a list of the commands, and a reference link to this repository.
+- ## Credits
 This application is packaged to binary using pyinstaller
 
 This application uses the **log4j-core-2.16.0** and **log4j-api-2.16.0** java libraries licensed under the Apache 2.0 license which is avaliable [here](https://www.apache.org/licenses/LICENSE-2.0). They also contain the following attribution notice:
