@@ -11,3 +11,4 @@ minecraft
 logs
 *.log
 *.spec
+.vscode/
