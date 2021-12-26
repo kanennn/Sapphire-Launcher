@@ -4,27 +4,31 @@ import pickle
 from MBasiC.installversion import *
 from MBasiC.launch import *
 from MBasiC.downloadstaticlibs import *
+from MBasiC.prelaunchchecks import *
 
 def main():
-    prelaunchchecks()
+    launchcheck()
     launcherversion, commands = info()
     interactiveloop(commands, launcherversion)
 
-def prelaunchchecks():
-    if os.path.exists('data/installed.dat'):
-        pass
-
 def info():
     launcherversion = '0.2.0.b1' 
-    commands = ['quit','launch','install','help']
+    commands = ['quit','launch','install',['help','?']]
     return launcherversion, commands
 
 def ifwhatversions():
-    if os.path.exists('installedversions.dat'):
-        with open('installedversions.dat','rb') as iV:
+    if os.path.exists('data/installedversions.dat'):
+        with open('data/installedversions.dat','rb') as iV:
             instversions = pickle.load(iV)
             return instversions
     else: return 'None'
+
+def helpinfo(commands):
+    print(
+        'Commands : {}\n'.format(', '.join(commands)) + \
+        'Refer to the GitHub README.md or a wiki (when we have one) at https://github.com/Pyrotex7/MBasiC for further info.\n'
+
+    )
 
 def interactiveloop(commands,launcherversion):
 
@@ -43,6 +47,9 @@ def interactiveloop(commands,launcherversion):
         elif commands[0] == prompt.strip():
             print('* Closing...')
             break
+
+        elif prompt.strip() in commands[3]:
+            print(helpinfo(commands))
 
         elif commands[1] == prompt.rsplit()[0]:
             if 1 < len(prompt.rsplit()): 
@@ -75,8 +82,6 @@ def interactiveloop(commands,launcherversion):
                 
 
     
-    
-
 
         
 

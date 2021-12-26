@@ -46,7 +46,7 @@ def authenticateuser():
 
 def constructcommand(version, authtoken, username, uuid):
 
-    with open('{}_vanilla_install/installdata_{}.dat'.format(version,version), 'rb') as installdata:
+    with open('game/{}_vanilla_install/installdata_{}.dat'.format(version,version), 'rb') as installdata:
         installlaunchdata = pickle.load(installdata)
 
     launchinputlist = [
@@ -56,9 +56,9 @@ def constructcommand(version, authtoken, username, uuid):
         '--version',
         version,
         '--gameDir',
-        os.getcwd() + '/minecraft',
+        os.getcwd() + '/game/minecraft',
         '--assetsDir',
-        os.getcwd() + '/{}_vanilla_install/assets'.format(version),
+        os.getcwd() + '/game/{}_vanilla_install/assets'.format(version),
         '--assetIndex',
         installlaunchdata["assetindex"],
         '--uuid',
@@ -72,15 +72,15 @@ def constructcommand(version, authtoken, username, uuid):
         installlaunchdata["versiontype"],
     ]
 
-    command = ['zulu-17.jre/Contents/Home/bin/java','-XstartOnFirstThread','-Xms409m','-Xmx2048m','-Duser.language=en','-cp']
+    command = ['static/zulu-17.jre/Contents/Home/bin/java','-XstartOnFirstThread','-Xms409m','-Xmx2048m','-Duser.language=en','-cp']
 
     libpathlist = list()
     for lib in installlaunchdata["libraries"]:
-        libpathlist.append(os.getcwd() + '/{}_vanilla_install/libraries/{}'.format(version,lib))
-    for l in [os.getcwd() + '/lwjgl/' + i for i in os.listdir(os.getcwd() + '/lwjgl/') if i.endswith('.jar')]:
+        libpathlist.append(os.getcwd() + '/game/{}_vanilla_install/libraries/{}'.format(version,lib))
+    for l in [os.getcwd() + '/static/lwjgl/' + i for i in os.listdir(os.getcwd() + '/static/lwjgl/') if i.endswith('.jar')]:
         libpathlist.append(l)
-    libpathlist.append(os.getcwd() + '/apache-log4j-2.16.0-select/log4j-api-2.16.0.jar')
-    libpathlist.append(os.getcwd() + '/apache-log4j-2.16.0-select/log4j-core-2.16.0.jar')
+    libpathlist.append(os.getcwd() + '/static/apache-log4j-2.16.0-select/log4j-api-2.16.0.jar')
+    libpathlist.append(os.getcwd() + '/static/apache-log4j-2.16.0-select/log4j-core-2.16.0.jar')
 
     command.append(":".join(libpathlist))
 

@@ -10,6 +10,4 @@ auth.txt
 minecraft
 logs
 *.log
-#options.txt
-#usercache.json
-#saves
+*.spec

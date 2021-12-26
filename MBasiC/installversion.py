@@ -28,24 +28,24 @@ def install(version):
 
 
 def addinstalledmark(version):
-    if os.path.exists('installedversions.dat'):
-        with open('installedversions.dat', 'r+b') as instversionsfile:
+    if os.path.exists('data/installedversions.dat'):
+        with open('data/installedversions.dat', 'r+b') as instversionsfile:
             installedversions = pickle.load(instversionsfile)
             installedversions.append(version)
             pickle.dump(installedversions, instversionsfile)
     else:
-        with open('installedversions.dat', 'wb') as instversionsfile:
+        with open('data/installedversions.dat', 'wb') as instversionsfile:
             pickle.dump([version], instversionsfile)
 
 def setupinstalldir(version):
-    installdir = '{}_vanilla_install'.format(version)
+    installdir = 'game/{}_vanilla_install'.format(version)
     os.makedirs(installdir, exist_ok=True)
     return installdir
 
 def writeassetindex(assetindexurl, version, versionjson):
     assetversion = versionjson["assets"]
-    os.makedirs('{}_vanilla_install/assets/indexes'.format(version), exist_ok=True)
-    with open('{}_vanilla_install/assets/indexes/{}.json'.format(version, assetversion), 'w') as assetindexfile:
+    os.makedirs('game/{}_vanilla_install/assets/indexes'.format(version), exist_ok=True)
+    with open('game/{}_vanilla_install/assets/indexes/{}.json'.format(version, assetversion), 'w') as assetindexfile:
         data = requests.get(assetindexurl)
         assetindexfile.write(data.text)
 
@@ -56,7 +56,7 @@ def writeassetindex(assetindexurl, version, versionjson):
 def getversionjson(version):
 
     # Grabbing all versions and their JSON download URLs from the "version-json-downloads.json" file (in the current launcher version)
-    with open('version-json-downloads.json', 'r') as versionDict:
+    with open('data/version-json-downloads.json', 'r') as versionDict:
         downloadVersionDictionary = json.load(versionDict)
 
     # Find the corresponding JSON file for that version
@@ -65,18 +65,18 @@ def getversionjson(version):
         versionJSONData = urlopen(versionURL)
     else:
         # Prints an error if that version isn't included in the "version-json-downloads.json" file with a URL definition
-        print('!\tThat version could not be found, it is not included in the versions dictionary, it may be inluded in a future update.')
+        print('! That version could not be found, it is not included in the versions dictionary, it may be inluded in a future update.')
         # Let's the user input their own JSON if they have downloaded one for the version they want to use
-        if (input('*\tYou may import a JSON file manually to continue. Would you like to do this? (y/n):\t') == 'y'):
-            versionJSONData = input('*\tYou may drag a custom JSON into the window now to try it manually.\nThis file will need to be named "[version you initally tried to launch].json" for it to be accepted.\nThis is not officially supported and is not gauranteed to function properly.\nPlace JSON here:\n ')
+        if (input('* You may import a JSON file manually to continue. Would you like to do this? (y/n): ') == 'y'):
+            versionJSONData = input('* You may drag a custom JSON into the window now to try it manually.\nThis file will need to be named "[version you initally tried to launch].json" for it to be accepted.\nThis is not officially supported and is not gauranteed to function properly.\nPlace JSON here:\n ')
         else: 
-            print('*\tReturning...')
+            print('* Returning...')
             return 'failed'
     try:
         JSONlibrary = json.load(versionJSONData)
-        print ('\n*\tLibrary index found, proceding with downlaod.\n')
+        print ('\n* Library index found, proceding with downlaod.\n')
     except:
-        print ('!\tLibrary index not found, this JSON file is not usable.\n')
+        print ('! Library index not found, this JSON file is not usable.\n')
         return 'failed'
     return JSONlibrary
 
@@ -142,7 +142,7 @@ def writeinstalldata(versionjson,installversion):
     installdata["libraries"] = names
 
     # Writing this dictionary to a pickle .dat file for later use when launching...
-    with open('{}_vanilla_install/installdata_{}.dat'.format(installversion, installversion),"wb") as installdatafile:
+    with open('game/{}_vanilla_install/installdata_{}.dat'.format(installversion, installversion),"wb") as installdatafile:
         pickle.dump(installdata, installdatafile)
 
 def parselibrarydownloads(url):
