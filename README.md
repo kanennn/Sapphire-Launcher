@@ -15,7 +15,7 @@ Use `launch [version]` to launch any installed versions. If specified versions i
 Use `quit` to simply close the program.
 - ##### help *or* ?
 Use `help` or `?` to provide a list of the commands, and a reference link to this repository.
-- ## Credits
+## Credits
 This application is packaged to binary using pyinstaller
 
 This application uses the **log4j-core-2.16.0** and **log4j-api-2.16.0** java libraries licensed under the Apache 2.0 license which is avaliable [here](https://www.apache.org/licenses/LICENSE-2.0). They also contain the following attribution notice:
