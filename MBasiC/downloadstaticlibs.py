@@ -13,7 +13,7 @@ def downloads():
     }
 
 def downloadjre(download):
-    print('# Downloading JRE...')
+    print('# Downloading JRE...', end='',flush=True)
     data = requests.get(download)
     with tempfile.TemporaryFile(mode='w+b') as filetemp:
         filetemp.write(data.content)

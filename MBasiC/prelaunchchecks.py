@@ -1,13 +1,12 @@
 import os
 import pickle
-from MBasiC.downloadstaticlibs import *
 
+from MBasiC.downloadstaticlibs import *
 
 def launchcheck():
     if not ifstaticsinstalled():
         downloadstatics()
         
-
 def ifstaticsinstalled():
     if os.path.exists('data/staticsinstalled.dat'):
         with open('data/staticsinstalled.dat','rb') as staticsinst:
@@ -18,3 +17,6 @@ def ifstaticsinstalled():
                 return False
     else:
         return False
+
+if __name__ == "__main__":
+    launchcheck()
