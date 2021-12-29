@@ -12,40 +12,40 @@ from urllib.request import urlopen
 #
 # Main install control function
 
-def install(version):
+def install(version, workingDir, resourceDir):
 
-    result = getversionjson(version)
+    result = getversionjson(version, workingDir, resourceDir)
     if result != 'failed':
         versionjson = result
     else:
         return 'failed'
-    installdir = setupinstalldir(version)
+    installdir = setupinstalldir(version, workingDir)
     allurls = getallurls(versionjson)
-    writeassetindex(allurls[2], version, versionjson)
-    downloadeverything(allurls,installdir)
-    addinstalledmark(version)
-    writeinstalldata(versionjson, version)
+    writeassetindex(allurls[2], versionjson, workingDir, installdir)
+    downloadeverything(allurls,installdir, workingDir)
+    addinstalledmark(version, workingDir)
+    writeinstalldata(versionjson, version, installdir, workingDir)
 
 
-def addinstalledmark(version):
-    if os.path.exists('data/installedversions.dat'):
-        with open('data/installedversions.dat', 'r+b') as instversionsfile:
+def addinstalledmark(version, workingDir):
+    if os.path.exists(os.path.join(workingDir, 'data', 'installedversions.dat')):
+        with open(os.path.join(workingDir, 'data', 'installedversions.dat'), 'r+b') as instversionsfile:
             installedversions = pickle.load(instversionsfile)
             installedversions.append(version)
             pickle.dump(installedversions, instversionsfile)
     else:
-        with open('data/installedversions.dat', 'wb') as instversionsfile:
+        with open(os.path.join(workingDir, 'data', 'installedversions.dat'), 'wb') as instversionsfile:
             pickle.dump([version], instversionsfile)
 
-def setupinstalldir(version):
-    installdir = 'game/{}_vanilla_install'.format(version)
+def setupinstalldir(version, workingDir):
+    installdir = os.path.join(workingDir,'game','{}_vanilla_install'.format(version))
     os.makedirs(installdir, exist_ok=True)
     return installdir
 
-def writeassetindex(assetindexurl, version, versionjson):
+def writeassetindex(assetindexurl, versionjson, workingDir, installdir):
     assetversion = versionjson["assets"]
-    os.makedirs('game/{}_vanilla_install/assets/indexes'.format(version), exist_ok=True)
-    with open('game/{}_vanilla_install/assets/indexes/{}.json'.format(version, assetversion), 'w') as assetindexfile:
+    os.makedirs(os.path.join(workingDir, 'game',installdir,'assets','indexes'), exist_ok=True)
+    with open(os.path.join(workingDir, 'game',installdir,'assets','indexes','{}.json'.format(assetversion)), 'w') as assetindexfile:
         data = requests.get(assetindexurl)
         assetindexfile.write(data.text)
 
@@ -53,10 +53,10 @@ def writeassetindex(assetindexurl, version, versionjson):
 #
 #   Gets the version json file
 
-def getversionjson(version):
+def getversionjson(version,workingDir, resourceDir):
 
     # Grabbing all versions and their JSON download URLs from the "version-json-downloads.json" file (in the current launcher version)
-    with open('data/version-json-downloads.json', 'r') as versionDict:
+    with open(os.path.join(resourceDir, 'version-json-downloads.json'), 'r') as versionDict:
         downloadVersionDictionary = json.load(versionDict)
 
     # Find the corresponding JSON file for that version
@@ -96,18 +96,18 @@ def getallurls(versionjson):
 #
 # Write all the files
     
-def downloadeverything(urls,installdir):
-    startdonwloadassets(urls[0],installdir)
-    downloadlibraries(urls[1],installdir)
+def downloadeverything(urls,installdir, workingDir):
+    startdonwloadassets(urls[0],installdir, workingDir)
+    downloadlibraries(urls[1],installdir, workingDir)
 
 #
 #
 #   Starts the pool to donwload the assets
 
-def startdonwloadassets(asseturls,installdir):
+def startdonwloadassets(asseturls,installdir,workingDir):
     combineddata = list()
     for url in asseturls:
-        combineddata.append([url, installdir])
+        combineddata.append([url, installdir, workingDir])
     donwnloadpool = multiprocessing.Pool(5)
     donwnloadpool.map(downloadassets, combineddata)
 
@@ -116,15 +116,15 @@ def startdonwloadassets(asseturls,installdir):
 #           Runs in a pool to get download and write all the asset urls, which is activated by startdownloadassets
 
 def downloadassets(combineddata):
-    os.makedirs('{}/{}'.format(combineddata[1],os.path.dirname(combineddata[0][1])), exist_ok=True)
-    with open('{}/{}'.format(combineddata[1],combineddata[0][1]), "wb") as directory:
+    os.makedirs(os.path.join(combineddata[2],combineddata[1],os.path.dirname(combineddata[0][1])), exist_ok=True)
+    with open(os.path.join(combineddata[2],combineddata[1],combineddata[0][1]), "wb") as directory:
         directory.write(requests.get(combineddata[0][0]).content)
 
 #
 #
 #   Download all the libraries
 
-def writeinstalldata(versionjson,installversion):
+def writeinstalldata(versionjson, installversion, installdir, workingDir):
     # Getting libraryurls for parsing in next function call (parselibrarydownloads)
     libraryurls = getllibraryurls(versionjson)
 
@@ -142,7 +142,7 @@ def writeinstalldata(versionjson,installversion):
     installdata["libraries"] = names
 
     # Writing this dictionary to a pickle .dat file for later use when launching...
-    with open('game/{}_vanilla_install/installdata_{}.dat'.format(installversion, installversion),"wb") as installdatafile:
+    with open(os.path.join(workingDir, 'game', installdir, 'installdata_{}.dat'.format(installversion)),'wb') as installdatafile:
         pickle.dump(installdata, installdatafile)
 
 def parselibrarydownloads(url):
@@ -151,11 +151,11 @@ def parselibrarydownloads(url):
         names.append(url[i[0]].rpartition('/')[2]) 
     return names
 
-def downloadlibraries(url,installdir):
-    os.makedirs('{}/libraries'.format(installdir),exist_ok=True)
+def downloadlibraries(url,installdir, workingDir):
+    os.makedirs(os.path.join(installdir,'libraries'),exist_ok=True)
     for i in enumerate(url):
         writtenfile = url[i[0]].rpartition('/')[2]
-        with open('{}/libraries/{}'.format(installdir,writtenfile), "wb") as directory:
+        with open(os.path.join(workingDir, installdir, 'libraries', writtenfile), "wb") as directory:
             directory.write(requests.get(i[1]).content)
 #
 #
@@ -194,7 +194,7 @@ def getasseturls(assetindex):
     for i in objects:
         hash = objects[i]["hash"]
         hashprefixed = '{}/{}'.format(hash[:2],hash)
-        downloadurls.append(["https://resources.download.minecraft.net/{}".format(hashprefixed),"assets/objects/{}".format(hashprefixed)])
+        downloadurls.append(["https://resources.download.minecraft.net/{}".format(hashprefixed),os.path.join('assets', 'objects', hashprefixed)])
     return downloadurls
 
 if __name__ == "__main__":

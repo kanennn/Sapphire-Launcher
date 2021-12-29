@@ -12,7 +12,7 @@ def downloads():
 
     }
 
-def downloadjre(download):
+def downloadjre(download, workingDir):
     print('# Downloading JRE...', end='',flush=True)
     data = requests.get(download)
     with tempfile.TemporaryFile(mode='w+b') as filetemp:
@@ -20,20 +20,20 @@ def downloadjre(download):
         with zipfile.ZipFile(filetemp,mode='r',compression=zipfile.ZIP_STORED,allowZip64=True,compresslevel=None,strict_timestamps=True) as zip:
             for file in zip.namelist():
                 if file.startswith('zulu17.30.15-ca-jre17.0.1-macosx_aarch64/zulu-17.jre/'):
-                    if file.endswith('/'):
-                        os.makedirs(os.getcwd() + '/static/jre/' + re.search('zulu17.30.15-ca-jre17.0.1-macosx_aarch64/zulu-17.jre/(.*)', file).group(1), exist_ok=True)
+                    if file.endswith(os.sep):
+                        os.makedirs(os.path.join(workingDir, 'jre', *re.search('zulu17.30.15-ca-jre17.0.1-macosx_aarch64/zulu-17.jre/(.*)', file).group(1).split(os.pathsep)), exist_ok=True)
                     else:
-                       zip.extract(file, path=os.getcwd() + '/static/jre/' + re.search('zulu17.30.15-ca-jre17.0.1-macosx_aarch64/zulu-17.jre/(.*)/',file).group(1))
+                        zip.extract(file, path=os.path.join(workingDir, 'jre', *re.search('zulu17.30.15-ca-jre17.0.1-macosx_aarch64/zulu-17.jre/(.*)', file).group(1).split(os.pathsep)))
     print('\tDone!\n')
     
 
     
 
-def downloadstatics():
+def downloadstatics(workingDir):
     download = downloads()
 
-    downloadjre(download['jre'])
+    downloadjre(download['jre'], workingDir)
 
-    if not os.path.exists('data/staticsinstalled.dat'):
-        with open('data/staticsinstalled.dat', 'wb') as staticsinst:
+    if not os.path.exists(os.path.join(workingDir, 'data', 'staticsinstalled.dat')):
+        with open(os.path.join(workingDir, 'data', 'staticsinstalled.dat'),'wb') as staticsinst:
             pickle.dump(True, staticsinst)

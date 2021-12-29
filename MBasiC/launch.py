@@ -4,9 +4,9 @@ import pickle
 
 from MBasiC.authuser import authenticate 
 
-def launch(version):
+def launch(version, workingDir, isFrozen, resourceDir):
     # Main launch handler
-    authdata = authenticateuser()
+    authdata = authenticateuser(workingDir)
 
     if authdata.status == 'OK':
         authtoken, username, uuid = authdata.authtoken, authdata.username, authdata.uuid
@@ -14,7 +14,7 @@ def launch(version):
          print('! %s'% authdata.error)
          return 'Failed'
 
-    launch = constructcommand(version, authtoken, username, uuid)
+    launch = constructcommand(version, authtoken, username, uuid, workingDir, isFrozen, resourceDir)
 
     launchcommand = subprocess.Popen(launch, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     stdout, stderr = launchcommand.communicate()
@@ -23,14 +23,14 @@ def launch(version):
         print(stderr)
         print(stdout)
 
-def authenticateuser():
+def authenticateuser(workingDir):
 
     def manualcredentials():
         email = input('Email (or legacy username):\t')
         password = input('Password:\t')
         return [email,password]
 
-    if os.path.exists('auth.txt'):
+    if os.path.exists(os.path.join(workingDir,'auth.txt')):
         with open('auth.txt', 'r') as authfile:
             try:
                 authargs = authfile.readlines()
@@ -44,9 +44,9 @@ def authenticateuser():
     
     return authrequest
 
-def constructcommand(version, authtoken, username, uuid):
+def constructcommand(version, authtoken, username, uuid, workingDir, isFrozen, resourceDir):
 
-    with open('game/{}_vanilla_install/installdata_{}.dat'.format(version,version), 'rb') as installdata:
+    with open(os.path.join(workingDir, 'game','{}_vanilla_install'.format(version),'installdata_{}.dat'.format(version)), 'rb') as installdata:
         installlaunchdata = pickle.load(installdata)
 
     launchinputlist = [
@@ -56,9 +56,9 @@ def constructcommand(version, authtoken, username, uuid):
         '--version',
         version,
         '--gameDir',
-        os.getcwd() + '/game/minecraft',
+        os.path.join(workingDir, 'game', 'minecraft'),
         '--assetsDir',
-        os.getcwd() + '/game/{}_vanilla_install/assets'.format(version),
+        os.path.join(workingDir, 'game','{}_vanilla_install'.format(version), 'assets'),
         '--assetIndex',
         installlaunchdata["assetindex"],
         '--uuid',
@@ -76,11 +76,16 @@ def constructcommand(version, authtoken, username, uuid):
 
     libpathlist = list()
     for lib in installlaunchdata["libraries"]:
-        libpathlist.append(os.getcwd() + '/game/{}_vanilla_install/libraries/{}'.format(version,lib))
-    for l in [os.getcwd() + '/static/lwjgl/' + i for i in os.listdir(os.getcwd() + '/static/lwjgl/') if i.endswith('.jar')]:
-        libpathlist.append(l)
-    libpathlist.append(os.getcwd() + '/static/apache-log4j-2.16.0-select/log4j-api-2.16.0.jar')
-    libpathlist.append(os.getcwd() + '/static/apache-log4j-2.16.0-select/log4j-core-2.16.0.jar')
+        libpathlist.append(os.path.join(workingDir, 'game', '{}_vanilla_install'.format(version),'libraries',lib))
+    
+    if not isFrozen:
+        for l in [os.path.join(workingDir, 'static', 'lwjgl', i) for i in os.listdir(os.path.join(workingDir, 'static', 'lwjgl')) if i.endswith('.jar')]:
+            libpathlist.append(l)
+        libpathlist.append()
+        libpathlist.append(os.path.join(workingDir, 'static', 'apache-log4j-2.16.0-select/log4j-core-2.16.0.jar'))
+    else:
+        for l in [os.path.join(resourceDir, i) for i in os.listdir(resourceDir) if i.endswith('.jar')]:
+            libpathlist.append(l)
 
     command.append(":".join(libpathlist))
 
