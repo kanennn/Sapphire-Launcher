@@ -40,9 +40,9 @@ def downloadjre(download, workingDir):
 
                     # This will write a data file to be referenced later by launch.py, for the directory of the java executable
                     
-                    if file.endswith('java'):
+                    if trimfile.endswith('java'):
                         with open(os.path.join(workingDir, 'data', 'javapath.dat'), 'wb') as javapath:
-                            pickle.dump(os.path.join(workingDir, 'jre', *trimfile.split(os.pathsep)), javapath)
+                            pickle.dump([workingDir, 'jre', *trimfile.split(os.pathsep)], javapath)
 
             # This will make the executables in bin/ have executable permissions so java can be called later in launch.py to launch minecraft 
 
@@ -53,7 +53,7 @@ def downloadjre(download, workingDir):
 
     # Notify the user that the JRE is done downloading!            
 
-    print('\tDone!\n')
+    print('\tDone!')
     
 
     

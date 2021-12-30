@@ -75,7 +75,7 @@ def constructcommand(version, authtoken, username, uuid, workingDir, isFrozen, r
     ]
 
     with open(os.path.join(workingDir, 'data', 'javapath.dat'), 'rb') as javapathfile:
-        javapath = os.path.join(workingDir,'jre',*pickle.load(javapathfile).split(os.sep))
+        javapath = os.path.join(*pickle.load(javapathfile))
 
     command = [javapath,'-XstartOnFirstThread','-Xms409m','-Xmx2048m','-Duser.language=en','-cp']
 
