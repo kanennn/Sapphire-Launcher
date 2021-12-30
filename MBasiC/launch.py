@@ -39,6 +39,8 @@ def authenticateuser(workingDir):
             except:
                 print('! Your auth.txt file was not formatted properly. Please enter your username and password manually to launch.')
                 email, password = manualcredentials()
+    else:
+        email, password = manualcredentials()
 
     authrequest = authenticate(email=email, password=password, accounttype='mojang') # The static 'mojang' account type passed will need to be changed to be dynamic when microsoft account support is added
     
@@ -72,17 +74,20 @@ def constructcommand(version, authtoken, username, uuid, workingDir, isFrozen, r
         installlaunchdata["versiontype"],
     ]
 
-    command = ['static/zulu-17.jre/Contents/Home/bin/java','-XstartOnFirstThread','-Xms409m','-Xmx2048m','-Duser.language=en','-cp']
+    with open(os.path.join(workingDir, 'data', 'javapath.dat'), 'rb') as javapathfile:
+        javapath = os.path.join(workingDir,'jre',*pickle.load(javapathfile).split(os.sep))
+
+    command = [javapath,'-XstartOnFirstThread','-Xms409m','-Xmx2048m','-Duser.language=en','-cp']
 
     libpathlist = list()
     for lib in installlaunchdata["libraries"]:
         libpathlist.append(os.path.join(workingDir, 'game', '{}_vanilla_install'.format(version),'libraries',lib))
     
     if not isFrozen:
-        for l in [os.path.join(workingDir, 'static', 'lwjgl', i) for i in os.listdir(os.path.join(workingDir, 'static', 'lwjgl')) if i.endswith('.jar')]:
+        for l in [os.path.join(os.path.dirname(resourceDir), 'static', 'lwjgl', i) for i in os.listdir(os.path.join(os.path.dirname(resourceDir), 'static', 'lwjgl')) if i.endswith('.jar')]:
             libpathlist.append(l)
-        libpathlist.append()
-        libpathlist.append(os.path.join(workingDir, 'static', 'apache-log4j-2.16.0-select/log4j-core-2.16.0.jar'))
+        libpathlist.append(os.path.join(os.path.dirname(resourceDir), 'static', 'apache-log4j-2.16.0-select','log4j-api-2.16.0.jar'))
+        libpathlist.append(os.path.join(os.path.dirname(resourceDir), 'static', 'apache-log4j-2.16.0-select','log4j-core-2.16.0.jar'))
     else:
         for l in [os.path.join(resourceDir, i) for i in os.listdir(resourceDir) if i.endswith('.jar')]:
             libpathlist.append(l)
