@@ -9,6 +9,7 @@ chardet = "*"
 urllib3 = "*"
 pyqt6-webengine = "*"
 pyinstaller = "*"
+black = "*"
 
 [dev-packages]
 

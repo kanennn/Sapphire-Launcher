@@ -10,6 +10,9 @@ auth.txt
 minecraft
 logs
 *.log
-*.spec
 .vscode/
 .MBasiC/
+*test*
+*test*/
+build/
+dist/

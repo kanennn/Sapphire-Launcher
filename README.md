@@ -1,21 +1,29 @@
-![MBasiC Main Logo For GitHub](https://user-images.githubusercontent.com/83188404/152092275-662a18fe-2976-472a-8b59-509cecf4bb33.png)
 # MBasiC
+
 A very simple, function over fashion, Apple Silicon native Minecraft launcher.
-*(I plan for the scope of this to hopefully expland in the future, with support for intel macs and maybe even Linux / Windows)* 
+_(I plan for the scope of this to hopefully expland in the future, with support for intel macs and maybe even Linux / Windows)_
+
 ### Description
-This is a python based *command line launcher* to launch most any minecraft version natively on Apple Silicon based Macs, *such as the M1, M1 Pro, or M1 Max Macs (try saying that five times fast)*
+
+This is a python based _command line launcher_ to launch most any minecraft version natively on Apple Silicon based Macs, _such as the M1, M1 Pro, or M1 Max Macs (try saying that five times fast)_
+
 ### Use
+
 Simply download one of the offical releases, and run the app to launch the command line interface.
+
 #### Commands
+
 - ##### install
-Use `install [version]` to install any supported versions. Currently only 1.17.1, 1.15, and 1.18.1 are supported (more coming VERY soon).
+  Use `install [version]` to install any supported versions. Currently only 1.17.1, 1.15, and 1.18.1 are supported (more coming VERY soon).
 - ##### launch
-Use `launch [version]` to launch any installed versions. If specified versions is not installed, then a prompt to install it will be presented.
+  Use `launch [version]` to launch any installed versions. If specified versions is not installed, then a prompt to install it will be presented.
 - ##### quit
-Use `quit` to simply close the program.
-- ##### help *or* ?
-Use `help` or `?` to provide a list of the commands, and a reference link to this repository.
+  Use `quit` to simply close the program.
+- ##### help _or_ ?
+  Use `help` or `?` to provide a list of the commands, and a reference link to this repository.
+
 ## Credits
+
 This application is packaged to binary using pyinstaller
 
 This application uses the **log4j-core-2.16.0** and **log4j-api-2.16.0** java libraries licensed under the Apache 2.0 license which is avaliable [here](https://www.apache.org/licenses/LICENSE-2.0). They also contain the following attribution notice:
@@ -153,7 +161,7 @@ Khronos :
 */
 ```
 
-Jemalloc :  
+Jemalloc :
 
 ```
 Unless otherwise specified, files in the jemalloc source distribution are
