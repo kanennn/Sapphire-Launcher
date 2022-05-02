@@ -10,6 +10,7 @@ urllib3 = "*"
 pyqt6-webengine = "*"
 pyinstaller = "*"
 black = "*"
+pyqt6 = "*"
 
 [dev-packages]
 

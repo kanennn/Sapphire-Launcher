@@ -2,21 +2,22 @@ import sys
 import json
 
 # import PyQt6
+import PyQt6
 from PyQt6.QtCore import QUrl, QByteArray
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtWebEngineCore import QWebEnginePage, QWebEngineHttpRequest
 
 
-class requestPage(QWebEnginePage):
-    def __init__(self, url=None, method=None, headers=None, data=None) -> None:
+class __Page__(QWebEnginePage):
+    def __init__(self, app, url=None, method=None, headers=None, data=None) -> None:
         # Initiate the application
-        self.app = QApplication(sys.argv)
+        self.app = app
         super().__init__()
 
         # Make sure the necessary variables aren't empty
-        if url == None:
+        if url is None:
             raise ValueError("Passed url variable cannot be empty")
-        if method == None:
+        if method is None:
             raise ValueError("Passed method variable cannot be empty")
 
         # Creates the main request variable
@@ -24,12 +25,14 @@ class requestPage(QWebEnginePage):
 
         # Assign the variables used to setup the request later in self.setupRequest()
         self.method = method
-        self.url = url
+        self.qurl = url
         self.headers = headers
 
         # Only assign this if the method is post
         if self.method == "post":
             self.postData = data
+        else:
+            self.postData = None
 
         # Setup the request
         self.setupRequest()
@@ -56,34 +59,45 @@ class requestPage(QWebEnginePage):
 
         # Assign the method variable to the request method
         self.req.setMethod(method)
-        self.req.setUrl(QUrl(self.url))
+        self.req.setUrl(QUrl(self.qurl))
 
         # Assign the headers
-        if self.headers != None:
+        if self.headers is not None:
             for i in self.headers:
                 self.req.setHeader(
-                    QByteArray(i[0].encode("ascii")),
-                    QByteArray(i[1].encode("ascii")),
+                    QByteArray(list(i.keys())[0].encode("ascii")),
+                    QByteArray(list(i.values())[0].encode("ascii")),
                 )
 
         # Assign the postData if the method is post
         if self.method == "post":
-            self.req.setPostData(bytes(json.dumps(self.postData), "utf-8"))
+            self.req.setPostData(bytes(self.postData, "utf-8"))
 
     # This part is a bit over my head
     def finish(self):
         self.html = self.toHtml(self.callHtml)
-
-    def callHtml(self, html_str):
-        self.html = html_str
+        self.url = self.url()
         self.deleteLater()
         self.app.quit()
 
+    def callHtml(self, html_str):
+        self.html = html_str
+
+
+class app:
+    def __init__(self) -> None:
+        self.app = QApplication(sys.argv)
+
+    def requestPage(self, url=None, method=None, headers=None, data=None):
+        page = __Page__(
+            app=self.app, url=url, method=method, headers=headers, data=data
+        )
+        return page
+
 
 def main():
-    url = "https://google.com"
-    method = "get"
-    page = requestPage(url, method)
+    webapp = app()
+    request = webapp.requestPage(url="https://google.com", method="get")
 
 
 if __name__ == "__main__":
