@@ -1,3 +1,5 @@
+import json
+from requests import RequestException, head
 import requests
 from urllib.parse import urlencode, quote
 import re
@@ -72,7 +74,7 @@ class authenticate:
 
         postInfo = urlencode(postDict, quote_via=quote)
 
-        postHeaders = [{"Content-Type": "application/x-www-form-urlencoded"}]
+        postHeaders = {"Content-Type": "application/x-www-form-urlencoded"}
         postGot = webapp.requestPage(
             url=urlPost, method="post", headers=postHeaders, data=postInfo
         )
@@ -87,18 +89,18 @@ class authenticate:
             for v in finalUrl.toString().split("#")[1].split("&")
         }
         print(microsoftResponse)
+        print("\n")
 
         ##### Warning, you are about to leave the last working part of this script.
 
         ### SIGNING INTO XBOX LIVE
 
-        
         xboxPostBody = urlencode(
             {
                 "Properties": {
                     "AuthMethod": "RPS",
                     "SiteName": "user.auth.xboxlive.com",
-                    "RpsTicket": f'"{microsoftResponse["access_token"]}"',
+                    "RpsTicket": f'{microsoftResponse["access_token"]}',
                 },
                 "RelyingParty": "http://auth.xboxlive.com",
                 "TokenType": "JWT",
@@ -106,30 +108,65 @@ class authenticate:
             quote_via=quote,
         )
 
-        print(xboxPostBody)
-
-        xboxHeaders = [
-            {
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-                "x-xbl-contract-version": "1",
+        bodyTest = {
+            "Properties": {
+                "AuthMethod": "RPS",
+                "SiteName": "user.auth.xboxlive.com",
+                "RpsTicket": f'"{microsoftResponse["access_token"]}"',
             },
-        ]
+            "RelyingParty": "http://auth.xboxlive.com",
+            "TokenType": "JWT",
+        }
 
-        xboxRequestTest = webapp.requestPage(
-            url="https://user.auth.xboxlive.com/user/authenticate", method="get"
+        jsonHeaders = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        }
+
+        req1 = requests.post(
+            url="https://user.auth.xboxlive.com/user/authenticate",
+            json=bodyTest,
         )
 
-        print(xboxRequestTest.url)
+        print("Requests method:")
+        print(req1.text)
+        print(req1.status_code)
+        print(req1.reason)
+
+        print("Webapp method:")
 
         xboxRequest = webapp.requestPage(
             url="https://user.auth.xboxlive.com/user/authenticate",
             method="post",
-            data=xboxPostBody,
-            headers=xboxHeaders,
+            data=bodyTest,
+            headers=jsonHeaders,
         )
 
-        print(xboxRequest.html)
+        xboxDict = json.loads(re.search("({.+})", xboxRequest.html).group(1))
+        xboxToken, xboxUhs = (
+            xboxDict["Token"],
+            xboxDict["DisplayClaims"]["xui"][0]["uhs"],
+        )
+
+        XSTSData = {
+            "Properties": {"SandboxId": "RETAIL", "UserTokens": [f"{xboxToken}"]},
+            "RelyingParty": "rp://api.minecraftservices.com/",
+            "TokenType": "JWT",
+        }
+
+        XSTSRequest = webapp.requestPage(
+            url="https://xsts.auth.xboxlive.com/xsts/authorize",
+            method="post",
+            data=XSTSData,
+            headers=jsonHeaders,
+        )
+
+        XSTSDict = json.loads(re.search("({.+})", XSTSRequest.html).group(1))
+        XSTSToken = XSTSDict["Token"]
+
+        
+
+        # https://api.minecraftservices.com/authentication/login_with_xbox
 
 
 if __name__ == "__main__":

@@ -63,15 +63,14 @@ class __Page__(QWebEnginePage):
 
         # Assign the headers
         if self.headers is not None:
-            for i in self.headers:
-                self.req.setHeader(
-                    QByteArray(list(i.keys())[0].encode("ascii")),
-                    QByteArray(list(i.values())[0].encode("ascii")),
-                )
+            self.req.setHeader(
+                QByteArray(list(self.headers.keys())[0].encode("ascii")),
+                QByteArray(list(self.headers.values())[0].encode("ascii")),
+            )
 
         # Assign the postData if the method is post
         if self.method == "post":
-            self.req.setPostData(bytes(self.postData, "utf-8"))
+            self.req.setPostData(bytes(str(self.postData), "utf-8"))
 
     # This part is a bit over my head
     def finish(self):
