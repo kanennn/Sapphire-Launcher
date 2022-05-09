@@ -1,11 +1,9 @@
 import json
-from requests import RequestException, head
 import requests
 from urllib.parse import urlencode, quote
 import re
 
-# from MBasiC.webbrowser import requestPage
-import webrequest
+import MBasiC.webrequest as webrequest
 
 
 class authenticate:
@@ -13,13 +11,14 @@ class authenticate:
         self.email = email
         self.password = password
         self.account = accounttype
+        print("* Authenticating...")
         self.__auth__()
 
     def __auth__(self):
         if self.account == "mojang":
             return self.__authmojang__()
         elif self.account == "microsoft":
-            self.__authmicrosoft__()
+            return self.__authmicrosoft__()
         else:
             raise ValueError(
                 "Authentication expected 'mojang' or 'microsoft' account type, but received otherwise:"
@@ -45,70 +44,71 @@ class authenticate:
                 returneddata["selectedProfile"]["id"],
             )
 
-            self.status = "OK"
+            self.status = 0
         else:
             self.error = returneddata["errorMessage"]
-            self.status = "Failed"
+            self.status = 1
 
     def __authmicrosoft__(self):
         # Setup
         webapp = webrequest.app()
+        email = self.email
+        password = self.password
 
         ### SIGNING INTO MICROSOFT
 
-        prepUrl = "https://login.live.com/oauth20_authorize.srf?client_id=000000004C12AE6F&redirect_uri=https://login.live.com/oauth20_desktop.srf&scope=service::user.auth.xboxlive.com::MBI_SSL&display=touch&response_type=token&locale=en"
-        prepGot = webapp.requestPage(url=prepUrl, method="get")
-        sFTTag = re.search('value="(.+?)"', prepGot.html).group(1)
-        urlPost = re.search("urlPost:'(.+?)'", prepGot.html).group(1)
-        print("sFFTag\n\n" + sFTTag + "\n")
-        print("urlPost\n\n" + urlPost)
+        # Prep
 
-        email = "emailTest"
-        password = "passwordTest"
-        postDict = {
+        prepRequest = webapp.requestPage(
+            url="https://login.live.com/oauth20_authorize.srf?client_id=000000004C12AE6F&redirect_uri=https://login.live.com/oauth20_desktop.srf&scope=service::user.auth.xboxlive.com::MBI_SSL&display=touch&response_type=token&locale=en",
+            method="get",
+        )
+        prepSFTTag = re.search('value="(.+?)"', prepRequest.html).group(1)
+        prepUrlPost = re.search("urlPost:'(.+?)'", prepRequest.html).group(1)
+
+        # Actual
+
+        msPostDict = {
             "login": email,
             "loginfmt": email,
             "passwd": password,
-            "PPFT": sFTTag,
+            "PPFT": prepSFTTag,
         }
 
-        postInfo = urlencode(postDict, quote_via=quote)
+        msData = urlencode(msPostDict, quote_via=quote)
 
-        postHeaders = {"Content-Type": "application/x-www-form-urlencoded"}
-        postGot = webapp.requestPage(
-            url=urlPost, method="post", headers=postHeaders, data=postInfo
+        msRequest = webapp.requestPage(
+            url=prepUrlPost,
+            method="post",
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+            data=msData,
         )
 
-        finalUrl = postGot.url
+        finalUrl = msRequest.url
 
-        if finalUrl == urlPost:
-            raise ValueError("Login failed for reasons that we don't care about")
+        if finalUrl == prepUrlPost:
+            self.status = 1
+            self.error = "Login failed for unknown reasons (reasons I didn't code for)"
+            return
+
+        if "Sign in to" in msRequest.html:
+            self.status = 1
+            self.error = "Invalid Credentials"
+            return
+
+        if "Help us protect your account" in msRequest.html:
+            self.status = 1
+            self.error = "Two factor authentication is enabled for this account which is not currently supported"
+            return
 
         microsoftResponse = {
             v.split("=")[0]: v.split("=")[1]
             for v in finalUrl.toString().split("#")[1].split("&")
         }
-        print(microsoftResponse)
-        print("\n")
-
-        ##### Warning, you are about to leave the last working part of this script.
 
         ### SIGNING INTO XBOX LIVE
 
-        xboxPostBody = urlencode(
-            {
-                "Properties": {
-                    "AuthMethod": "RPS",
-                    "SiteName": "user.auth.xboxlive.com",
-                    "RpsTicket": f'{microsoftResponse["access_token"]}',
-                },
-                "RelyingParty": "http://auth.xboxlive.com",
-                "TokenType": "JWT",
-            },
-            quote_via=quote,
-        )
-
-        bodyTest = {
+        xboxData = {
             "Properties": {
                 "AuthMethod": "RPS",
                 "SiteName": "user.auth.xboxlive.com",
@@ -118,35 +118,18 @@ class authenticate:
             "TokenType": "JWT",
         }
 
-        jsonHeaders = {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-        }
-
-        req1 = requests.post(
+        xboxRequest = requests.post(
             url="https://user.auth.xboxlive.com/user/authenticate",
-            json=bodyTest,
+            json=xboxData,
         )
 
-        print("Requests method:")
-        print(req1.text)
-        print(req1.status_code)
-        print(req1.reason)
-
-        print("Webapp method:")
-
-        xboxRequest = webapp.requestPage(
-            url="https://user.auth.xboxlive.com/user/authenticate",
-            method="post",
-            data=bodyTest,
-            headers=jsonHeaders,
-        )
-
-        xboxDict = json.loads(re.search("({.+})", xboxRequest.html).group(1))
+        xboxDict = json.loads(xboxRequest.text)
         xboxToken, xboxUhs = (
             xboxDict["Token"],
             xboxDict["DisplayClaims"]["xui"][0]["uhs"],
         )
+
+        ### GETTING XSTS TOKEN
 
         XSTSData = {
             "Properties": {"SandboxId": "RETAIL", "UserTokens": [f"{xboxToken}"]},
@@ -154,24 +137,91 @@ class authenticate:
             "TokenType": "JWT",
         }
 
-        XSTSRequest = webapp.requestPage(
+        XSTSRequest = requests.post(
             url="https://xsts.auth.xboxlive.com/xsts/authorize",
-            method="post",
-            data=XSTSData,
-            headers=jsonHeaders,
+            json=XSTSData,
         )
 
-        XSTSDict = json.loads(re.search("({.+})", XSTSRequest.html).group(1))
+        XSTSDict = json.loads(XSTSRequest.text)
+
+        XSTSErrors = {
+            "2148916233": "This account does not have an xbox account",
+            "2148916235": "Xbox live is not available in this account's region",
+            "2148916236": "This account needs adult verification",
+            "2148916237": "This account needs adult verification",
+            "2148916238": "This is a child account and must be added to a Family by an adult before signing in",
+        }
+
+        if "XErr" in XSTSDict.keys():
+            self.status = 1
+            self.error = XSTSErrors[XSTSDict["XErr"]]
+            return
+
         XSTSToken = XSTSDict["Token"]
 
-        
+        ### GETTING MINECRAFT TOKEN
 
-        # https://api.minecraftservices.com/authentication/login_with_xbox
+        mcAuthData = {
+            "identityToken": f"XBL3.0 x={xboxUhs};{XSTSToken}",
+            "ensureLegacyEnabled": "true",
+        }
+
+        mcRequest = requests.post(
+            url="https://api.minecraftservices.com/authentication/login_with_xbox",
+            json=mcAuthData,
+        )
+
+        mcDict = json.loads(mcRequest.text)
+        mcToken = mcDict["access_token"]
+
+        ### CHECKING IF THE ACCOUNT OWNS MINECRAFT
+
+        authHeader = {"Authorization": f"Bearer {mcToken}"}
+
+        gameOwnedRequest = requests.get(
+            url="https://api.minecraftservices.com/entitlements/mcstore",
+            headers=authHeader,
+        )
+
+        gameOwnedDict = json.loads(gameOwnedRequest.text)
+
+        #### Need to eventually decode JWT values and check against Mojang servers public key
+
+        if gameOwnedDict["items"] == None:
+            print(
+                "This account does not own minecraft according to the minecraft store"
+            )
+
+        ### GETTING PROFILE INFORMATION
+
+        profileRequest = requests.get(
+            url="https://api.minecraftservices.com/minecraft/profile",
+            headers=authHeader,
+        )
+
+        profileDict = json.loads(profileRequest.text)
+
+        if "error" in profileDict.keys():
+            self.status = 1
+            self.error = {
+                "reason": "This account's minecraft profile doesn't exist",
+                "errorType": f'"{profileDict["errorType"]}"',
+                "error": f'"{profileDict["error"]}"',
+                "errorMessage": f'"{profileDict["errorMessage"]}"',
+                "developerMessage": f'"{profileDict["developerMessage"]}"',
+            }
+            return
+
+        self.authtoken = mcToken
+        self.username = profileDict["name"]
+        self.uuid = profileDict["id"]
+        self.status = 0
 
 
 if __name__ == "__main__":
-    # authdata = authenticate(
-    # input("Username: "), input("Password: "), input("Account Type: ")
-    # )
-    authenticate(email=None, password=None, accounttype="microsoft")
-    # print(authdata.authtoken)
+    email, password, type = (
+        input("Username: "),
+        input("Password: "),
+        input("Account Type: "),
+    )
+    auth = authenticate(email=email, password=password, accounttype=type)

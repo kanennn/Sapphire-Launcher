@@ -49,6 +49,7 @@ class __Page__(QWebEnginePage):
         if self.method == "get":
             method = QWebEngineHttpRequest.Method.Get
         elif self.method == "post":
+            ### NOTE: THE POST SYSTEM IS VERY UNRELIABLE FROM MY EXPERIENCE, SO I DON'T USE IT
             method = QWebEngineHttpRequest.Method.Post
         else:
             raise ValueError(

@@ -9,15 +9,17 @@ def launch(version, workingDir, isFrozen, resourceDir):
     # Main launch handler
     authdata = authenticateuser(workingDir)
 
-    if authdata.status == "OK":
+    if authdata.status == 0:
         authtoken, username, uuid = authdata.authtoken, authdata.username, authdata.uuid
-    elif authdata.status == "Failed":
+    elif authdata.status == 1:
         print("! %s" % authdata.error)
         return "Failed"
 
     launch = constructcommand(
         version, authtoken, username, uuid, workingDir, isFrozen, resourceDir
     )
+
+    print("* Launching...")
 
     launchcommand = subprocess.Popen(
         launch,
@@ -41,7 +43,8 @@ def authenticateuser(workingDir):
     def manualcredentials():
         email = input("Email (or legacy username):\t")
         password = input("Password:\t")
-        return [email, password]
+        type = input("Account type:\t")
+        return [email, password, type]
 
     if os.path.exists(os.path.join(workingDir, "auth.txt")):
         with open(os.path.join(workingDir, "auth.txt"), "r") as authfile:
@@ -55,11 +58,9 @@ def authenticateuser(workingDir):
                 )
                 email, password = manualcredentials()
     else:
-        email, password = manualcredentials()
+        email, password, type = manualcredentials()
 
-    authrequest = authenticate(
-        email=email, password=password, accounttype="mojang"
-    )  # The static 'mojang' account type passed will need to be changed to be dynamic when microsoft account support is added
+    authrequest = authenticate(email=email, password=password, accounttype=type)
 
     return authrequest
 
