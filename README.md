@@ -1,6 +1,6 @@
 ![GitHub Sapphire Logo](https://user-images.githubusercontent.com/83188404/168196897-0d1e79fd-5fc9-430c-be17-3def5bc5b188.png)
 
-# Sapphire
+# Sapphire Launcher
 _Formerly known as MBasiC_
 
 A very simple, function over fashion, Apple Silicon native Minecraft launcher.
