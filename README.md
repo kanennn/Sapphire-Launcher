@@ -1,6 +1,7 @@
-![MBasiC Main Logo For GitHub](https://user-images.githubusercontent.com/83188404/152092275-662a18fe-2976-472a-8b59-509cecf4bb33.png)
+![Sapphire (MBasiC) Logo](https://user-images.githubusercontent.com/83188404/168196435-1ed00d54-d528-4371-abdc-a2917bd5cab1.png)
 
-# MBasiC
+# Sapphire
+_Formerly known as MBasiC_
 
 A very simple, function over fashion, Apple Silicon native Minecraft launcher.
 _(I plan for the scope of this to hopefully expland in the future, with support for intel macs and maybe even Linux / Windows)_
