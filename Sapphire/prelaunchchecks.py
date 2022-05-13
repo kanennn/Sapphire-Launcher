@@ -1,8 +1,8 @@
 import os
 import pickle
 
-import MBasiC.downloadstaticlibs as statics
-import MBasiC.initialsetup as initset
+import Sapphire.downloadstaticlibs as statics
+import Sapphire.initialsetup as initset
 
 
 def launchcheck(workingDir):

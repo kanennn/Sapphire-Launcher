@@ -11,7 +11,7 @@ minecraft
 logs
 *.log
 .vscode/
-.MBasiC/
+.Sapphire/
 *test*
 *test*/
 build/

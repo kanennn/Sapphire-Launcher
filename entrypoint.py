@@ -1,4 +1,4 @@
-import MBasiC
+import Sapphire
 
 if __name__ == "__main__":
-    MBasiC.__main__.main(MBasiC.workingDir, MBasiC.isFrozen, MBasiC.resourceDir)
+    Sapphire.__main__.main(Sapphire.workingDir, Sapphire.isFrozen, Sapphire.resourceDir)

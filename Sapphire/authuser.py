@@ -3,7 +3,7 @@ import requests
 from urllib.parse import urlencode, quote
 import re
 
-import MBasiC.webrequest as webrequest
+import Sapphire.webrequest as webrequest
 
 
 class authenticate:
@@ -51,7 +51,9 @@ class authenticate:
 
     def __authmicrosoft__(self):
         # Setup
-        webapp = webrequest.app()
+        webapp = (
+            webrequest.app()
+        )  # This seems to stay open the entire time the application is open, which could be bad, but it didn't seem to like me creating multiple QApplications within one execution
         email = self.email
         password = self.password
 

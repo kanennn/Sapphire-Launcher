@@ -2,7 +2,7 @@ import subprocess
 import os
 import pickle
 
-from MBasiC.authuser import authenticate
+from Sapphire.authuser import authenticate
 
 
 def launch(version, workingDir, isFrozen, resourceDir):
@@ -32,7 +32,7 @@ def launch(version, workingDir, isFrozen, resourceDir):
     if launchcommand.returncode != 0:
         print("! Launch failed with exit code %s" % launchcommand.returncode)
         print(
-            "* The full log will be saved to your minecraft directory. Refer to the offical GitHub at https://github.com/Pyrotex7/MBasiC page for instruction on how to find this."
+            "* The full log will be saved to your minecraft directory. Refer to the offical GitHub at https://github.com/Pyrotex7/Sapphire-Launcher-Launcher page for instruction on how to find this."
         )
         if input("* Would you like to see the full log now? (y/n): ") == "y":
             print(stderr)

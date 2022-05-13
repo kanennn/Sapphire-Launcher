@@ -2,9 +2,9 @@ import os
 import pickle
 import string
 
-import MBasiC.installversion as inst
-import MBasiC.launch as lnch
-import MBasiC.prelaunchchecks as check
+import Sapphire.installversion as inst
+import Sapphire.launch as lnch
+import Sapphire.prelaunchchecks as check
 
 
 def main(workingDir, isFrozen, resourceDir):
@@ -14,8 +14,8 @@ def main(workingDir, isFrozen, resourceDir):
 
 
 def info():
-    launcherversion = "0.2.0.b3"
-    commands = ["quit", "launch", "install", ["help", "?"]]
+    launcherversion = None  # I ditched this because I'm not releasing it yet so I'm not tracking until then
+    commands = [["quit", "exit"], "launch", "install", ["help", "?"]]
     return launcherversion, commands
 
 
@@ -33,7 +33,7 @@ def ifwhatversions(workingDir):
 def helpinfo(fcommands):
     print("? Commands : {}".format(", ".join(fcommands) + ","))
     print(
-        "? Refer to the GitHub README.md or a wiki (when we have one) at https://github.com/Pyrotex7/MBasiC for further info."
+        "? Refer to the GitHub README.md or a wiki (when we have one) at https://github.com/Pyrotex7/Sapphire-Launcher for further info."
     )
 
 
@@ -54,11 +54,7 @@ def interactiveloop(commands, launcherversion, workingDir, isFrozen, resourceDir
 
     fcommands = recursivelist(commands)
 
-    print(
-        '\n# MBasiC Launcher v{} - Type "?" or "help" for help.\n'.format(
-            launcherversion
-        )
-    )
+    print('\n# Sapphire Launcher - Type "?" or "help" for help.\n')
 
     while True:
         prompt = input("[] ")
@@ -73,7 +69,7 @@ def interactiveloop(commands, launcherversion, workingDir, isFrozen, resourceDir
             print("! Not a command")
 
         # Closing command
-        elif commands[0] == prompt.strip():
+        elif prompt.strip() in commands[0]:
             print("* Closing...")
             break
 
@@ -94,6 +90,13 @@ def interactiveloop(commands, launcherversion, workingDir, isFrozen, resourceDir
                         == "y"
                     ):
                         inst.install(version, workingDir, resourceDir)
+                        if (
+                            input(f"* Would you still like to launch {version}? (y/n): ")
+                            == "y"
+                        ):
+                            lnch.launch(version, workingDir, isFrozen, resourceDir)
+                        else:
+                            print("* Returning...")
                     else:
                         print("* Returning...")
                 elif version not in checkversions:

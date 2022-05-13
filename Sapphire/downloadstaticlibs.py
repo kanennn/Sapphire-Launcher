@@ -39,7 +39,7 @@ def downloadjre(download, workingDir):
                     ).group(1)
 
                     # To write directories or files according to the conditions of the if statement,
-                    # in the jre folder in the working directory (.MBasiC folder)
+                    # in the jre folder in the working directory (.Sapphire folder)
 
                     # ? I use this instead of extract() or extractall() so I can filter out the first two parent directories.
                     # ? I know I could still use extract() but I wrote this while fighting some issues with extract()
