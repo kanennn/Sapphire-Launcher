@@ -1,4 +1,4 @@
-![Sapphire (MBasiC) Logo](https://user-images.githubusercontent.com/83188404/168196435-1ed00d54-d528-4371-abdc-a2917bd5cab1.png)
+![GitHub Sapphire Logo](https://user-images.githubusercontent.com/83188404/168196897-0d1e79fd-5fc9-430c-be17-3def5bc5b188.png)
 
 # Sapphire
 _Formerly known as MBasiC_
